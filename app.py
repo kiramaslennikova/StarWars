@@ -180,6 +180,7 @@ def animated_ratings():
     import plotly.express as px
     import pandas as pd
     import json
+    import numpy as np
     from collections import Counter
 
     with open("data_wrangling/data/films_all_known.json", "r", encoding="utf-8") as f:
@@ -204,6 +205,11 @@ def animated_ratings():
 
     df = pd.DataFrame(data)
 
+    # Очистка данных
+    df = df.replace([np.inf, -np.inf], np.nan).dropna()
+    df["score"] = pd.to_numeric(df["score"], errors="coerce")
+    df["genre"] = df["genre"].astype(str)
+
     fig = px.histogram(
         df,
         x="score",
@@ -221,10 +227,12 @@ def animated_ratings():
         yaxis_title="Количество фильмов",
         title_font_size=20,
         font=dict(size=14),
-        bargap=0.1
+        bargap=0.1,
+        yaxis_range=[0, df.groupby(["genre", "rating_type", "score"]).size().max() * 1.1]
     )
 
     return fig.to_html(full_html=False)
+
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
