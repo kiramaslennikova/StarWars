@@ -182,7 +182,7 @@ def animated_ratings():
     import json
     from collections import Counter
 
-    with open("data/films_metascore_unknown.json", "r", encoding="utf-8") as f:
+    with open("static/data/films_metascore_unknown.json", "r", encoding="utf-8") as f:
         films = json.load(f)
 
     genre_counter = Counter()
