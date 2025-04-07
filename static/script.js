@@ -791,3 +791,71 @@ function initCharts() {
         }
     });
 }
+
+fetch('/api/animated_ratings')
+  .then(response => response.json())
+  .then(data => {
+    const frames = {};
+    const allGenres = [...new Set(data.map(d => d.genre))];
+    const colors = {
+      'IMDb': 'lightblue',
+      'Metascore': 'orange'
+    };
+
+    allGenres.forEach(genre => {
+      const frameData = data.filter(d => d.genre === genre);
+      const imdb = frameData.filter(d => d.rating_type === 'IMDb');
+      const meta = frameData.filter(d => d.rating_type === 'Metascore');
+
+      frames[genre] = {
+        name: genre,
+        data: [
+          {
+            x: imdb.map(d => d.score),
+            y: imdb.map((_, i) => i),
+            name: 'IMDb',
+            type: 'histogram',
+            marker: { color: colors['IMDb'] },
+            opacity: 0.7
+          },
+          {
+            x: meta.map(d => d.score),
+            y: meta.map((_, i) => i),
+            name: 'Metascore',
+            type: 'histogram',
+            marker: { color: colors['Metascore'] },
+            opacity: 0.7
+          }
+        ]
+      };
+    });
+
+    const firstGenre = allGenres[0];
+    const layout = {
+      title: `Распределение рейтингов (жанр: ${firstGenre})`,
+      barmode: 'overlay',
+      xaxis: { title: 'Рейтинг (до 10)' },
+      yaxis: { title: 'Количество фильмов' },
+      template: 'plotly_dark',
+      updatemenus: [{
+        buttons: allGenres.map(genre => ({
+          method: 'animate',
+          label: genre,
+          args: [[genre], {
+            mode: 'immediate',
+            transition: { duration: 300 },
+            frame: { duration: 300, redraw: true }
+          }]
+        })),
+        direction: 'down',
+        showactive: true
+      }]
+    };
+
+    const plotData = frames[firstGenre].data;
+    const plotFrames = Object.values(frames);
+
+    Plotly.newPlot('animated-bar-chart', plotData, layout).then(() => {
+      Plotly.addFrames('animated-bar-chart', plotFrames);
+    });
+  });
