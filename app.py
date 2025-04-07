@@ -237,7 +237,7 @@ def stacked_avg_ratings():
     from collections import Counter
     import plotly.io as pio
 
-    with open("data/films_metascore_unknown.json", "r", encoding="utf-8") as f:
+    with open("data_wrangling/data/films_metascore_unknown.json", "r", encoding="utf-8") as f:
         films = json.load(f)
 
     genre_counter = Counter()
