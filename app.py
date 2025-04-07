@@ -293,31 +293,33 @@ def radar_chart():
     try:
         import json
         import pandas as pd
+        import numpy as np
+        from collections import defaultdict
         import plotly.graph_objects as go
 
+        # Загрузка данных
         with open("data_wrangling/data/films_all_known.json", "r", encoding="utf-8") as f:
             films = json.load(f)
+
+        # Группировка по жанрам
         genre_revenue = defaultdict(list)
         genre_budget = defaultdict(list)
-        genre_imdb = defaultdict(lambda: {"high": 0, "low": 0, "total": 0})
-        
+
         for film in films:
+            if not film.get("genres"):
+                continue
+
             for genre in film["genres"]:
-                if film["box_office"]:
+                if film.get("box_office"):
                     genre_revenue[genre].append(film["box_office"])
-                if film["production_budget"]:
+                if film.get("production_budget"):
                     genre_budget[genre].append(film["production_budget"])
-                if film["imdb"] > 7.1:
-                    genre_imdb[genre]["high"] += 1
-                elif film["imdb"] < 6.2:
-                    genre_imdb[genre]["low"] += 1
-                genre_imdb[genre]["total"] += 1
-        
+
         # Расчёт средних значений
-        avg_revenue = {genre: np.mean(revenue) for genre, revenue in genre_revenue.items()}
-        avg_budget = {genre: np.mean(budget) for genre, budget in genre_budget.items()}
-        
-        # Объединение в один DataFrame
+        avg_revenue = {genre: np.mean(values) for genre, values in genre_revenue.items()}
+        avg_budget = {genre: np.mean(values) for genre, values in genre_budget.items()}
+
+        # Объединение в DataFrame
         genres = sorted(set(avg_budget.keys()))
         combined_data = [
             {
@@ -327,17 +329,11 @@ def radar_chart():
             }
             for genre in genres
         ]
-        
-        df_combined = pd.DataFrame(combined_data)
-        df_combined = df_combined.sort_values("Avg Budget", ascending=False)
-        
-        
-        # Построение двойного графика
-        df_combined.set_index("Genre")[["Avg Budget", "Avg Box Office"]].plot(
-            kind="bar",
-            figsize=(11, 4)
-        )
 
+        df_combined = pd.DataFrame(combined_data)
+        df_combined = df_combined.sort_values("Avg Budget", ascending=False).head(10)
+
+        # Построение радара
         fig = go.Figure()
 
         fig.add_trace(go.Scatterpolar(
@@ -363,7 +359,7 @@ def radar_chart():
         )
 
         return fig.to_json()
-    
+
     except Exception as e:
         return f"Error: {e}", 500
 
