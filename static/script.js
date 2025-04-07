@@ -798,4 +798,10 @@ fetch("/api/stacked_avg_ratings")
         Plotly.newPlot("stackedRatingChart", data.data, data.layout, {responsive: true});
     });
 
+fetch("/api/radar_chart")
+    .then(response => response.json())
+    .then(data => {
+        Plotly.newPlot("radarChart", data.data, data.layout);
+    });
+
 
