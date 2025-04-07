@@ -178,6 +178,36 @@ def get_imdb_metascore_data():
     return jsonify(datasets)
 
 
+@app.route("/api/animated_ratings")
+def animated_ratings():
+    import pandas as pd
+    import plotly.express as px
+    import json
+    from collections import Counter
+
+    with open("data_wrangling/data/films_all_known.json", "r", encoding="utf-8") as f:
+        films = json.load(f)
+
+    genre_counter = Counter()
+    for film in films:
+        if "genres" in film:
+            genre_counter.update(film["genres"])
+
+    top_10_genres = {genre for genre, _ in genre_counter.most_common(10)}
+
+    data = []
+    for film in films:
+        if "genres" in film and film["imdb"] and film["metascore"]:
+            imdb_rounded = round(film["imdb"] * 2) / 2
+            metascore_rounded = round(film["metascore"] / 5) * 5
+            for genre in film["genres"]:
+                if genre in top_10_genres:
+                    data.append({"genre": genre, "rating_type": "IMDb", "score": imdb_rounded})
+                    data.append({"genre": genre, "rating_type": "Metascore", "score": metascore_rounded / 10})
+
+    df = pd.DataFrame(data)
+
+    return df.to_json(orient="records")
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
