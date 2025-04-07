@@ -499,7 +499,7 @@ function initCharts() {
             data: {
                 labels: [],
                 datasets: [{
-                    label: 'Number of Hits (Box Office > 2x Budget)',
+                    label: 'Average rating',
                     data: [],
                     borderColor: '#00FF7F',
                     backgroundColor: 'rgba(0, 255, 127, 0.1)',
