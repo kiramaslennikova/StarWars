@@ -297,25 +297,46 @@ def radar_chart():
 
         with open("data_wrangling/data/films_all_known.json", "r", encoding="utf-8") as f:
             films = json.load(f)
-
-        data = []
+        genre_revenue = defaultdict(list)
+        genre_budget = defaultdict(list)
+        genre_imdb = defaultdict(lambda: {"high": 0, "low": 0, "total": 0})
+        
         for film in films:
-            if film["genres"] and film["box_office"] and film["production_budget"]:
-                for genre in film["genres"]:
-                    data.append({
-                        "Genre": genre,
-                        "Box Office": film["box_office"],
-                        "Budget": film["production_budget"]
-                    })
-
-        df = pd.DataFrame(data)
-        df_grouped = df.groupby("Genre").agg({
-            "Box Office": "mean",
-            "Budget": "mean"
-        }).reset_index()
-
-        df_grouped.columns = ["Genre", "Avg Box Office", "Avg Budget"]
-        df_combined = df_grouped.sort_values(by="Avg Box Office", ascending=False).head(10)
+            for genre in film["genres"]:
+                if film["box_office"]:
+                    genre_revenue[genre].append(film["box_office"])
+                if film["production_budget"]:
+                    genre_budget[genre].append(film["production_budget"])
+                if film["imdb"] > 7.1:
+                    genre_imdb[genre]["high"] += 1
+                elif film["imdb"] < 6.2:
+                    genre_imdb[genre]["low"] += 1
+                genre_imdb[genre]["total"] += 1
+        
+        # Расчёт средних значений
+        avg_revenue = {genre: np.mean(revenue) for genre, revenue in genre_revenue.items()}
+        avg_budget = {genre: np.mean(budget) for genre, budget in genre_budget.items()}
+        
+        # Объединение в один DataFrame
+        genres = sorted(set(avg_budget.keys()))
+        combined_data = [
+            {
+                "Genre": genre,
+                "Avg Box Office": avg_revenue.get(genre, 0),
+                "Avg Budget": avg_budget.get(genre, 0)
+            }
+            for genre in genres
+        ]
+        
+        df_combined = pd.DataFrame(combined_data)
+        df_combined = df_combined.sort_values("Avg Budget", ascending=False)
+        
+        
+        # Построение двойного графика
+        df_combined.set_index("Genre")[["Avg Budget", "Avg Box Office"]].plot(
+            kind="bar",
+            figsize=(11, 4)
+        )
 
         fig = go.Figure()
 
