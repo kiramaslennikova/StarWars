@@ -804,4 +804,57 @@ fetch("/api/radar_chart")
         Plotly.newPlot("radarChart", data.data, data.layout);
     });
 
+async function renderImdbTrendChart() {
+    try {
+        const response = await fetch('/api/imdb_trends');
+        const data = await response.json();
+
+        const periods = data.map(d => d.period);
+        const high = data.map(d => d.high_pct);
+        const mid = data.map(d => d.mid_pct);
+        const low = data.map(d => d.low_pct);
+
+        const traceHigh = {
+            x: periods,
+            y: high,
+            mode: 'lines+markers',
+            name: '> 7.0',
+            line: { color: 'green', width: 2 }
+        };
+
+        const traceMid = {
+            x: periods,
+            y: mid,
+            mode: 'lines+markers',
+            name: '6.0 – 7.0',
+            line: { color: 'orange', width: 2 }
+        };
+
+        const traceLow = {
+            x: periods,
+            y: low,
+            mode: 'lines+markers',
+            name: '< 6.0',
+            line: { color: 'red', width: 2 }
+        };
+
+        const layout = {
+            title: 'IMDb Ratings by 5-Year Periods',
+            xaxis: { title: 'Year (5-year groups)' },
+            yaxis: { title: 'Percentage of Films' },
+            plot_bgcolor: 'black',
+            paper_bgcolor: 'black',
+            font: { color: 'white' },
+            legend: { font: { size: 14 } }
+        };
+
+        Plotly.newPlot('imdbTrendChart', [traceHigh, traceMid, traceLow], layout);
+    } catch (error) {
+        console.error("Error rendering IMDb trend chart:", error);
+    }
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    renderImdbTrendChart();
+});
 
