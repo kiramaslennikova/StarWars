@@ -337,8 +337,8 @@ def radar_chart():
         fig = go.Figure()
 
         fig.add_trace(go.Scatterpolar(
-            r=df_combined["Avg Box Office"],
-            theta=df_combined["Genre"],
+            r=df_combined["Avg Box Office"].tolist(),
+            theta=df_combined["Genre"].tolist(),
             fill='toself',
             name='Avg Box Office'
         ))
