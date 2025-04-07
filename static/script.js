@@ -839,9 +839,9 @@ async function renderImdbTrendChart() {
         };
 
         const layout = {
-            title: 'IMDb Ratings by 5-Year Periods',
-            xaxis: { title: 'Year (5-year groups)' },
-            yaxis: { title: 'Percentage of Films' },
+            title: ' ',
+            xaxis: { title: 'Year (5-year groups)', color: 'white'  },
+            yaxis: { title: 'Percentage of Films', color: 'white'  },
             plot_bgcolor: 'black',
             paper_bgcolor: 'black',
             font: { color: 'white' },
