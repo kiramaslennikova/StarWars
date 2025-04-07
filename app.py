@@ -344,24 +344,62 @@ def radar_chart():
         ))
 
         fig.add_trace(go.Scatterpolar(
-            r=df_combined["Avg Budget"],
-            theta=df_combined["Genre"],
+            r=df_combined["Avg Budget"].tolist(),
+            theta=df_combined["Genre"].tolist(),
             fill='toself',
             name='Avg Budget'
         ))
 
         fig.update_layout(
+            template="plotly_dark",  # Тёмная тема
+            paper_bgcolor="black",   # Фон всего холста
+            plot_bgcolor="black",    # Фон области графика
             polar=dict(
-                radialaxis=dict(visible=True)
+                bgcolor="black",  # Фон круга
+                radialaxis=dict(visible=True, color="white"),  # Оси — белые
+                angularaxis=dict(color="white")               # Подписи — белые
             ),
+            font=dict(color="white"),  # Цвет текста на графике
             showlegend=True,
             title="Budget vs Box Office by Genre (Radar Chart)"
         )
+
 
         return fig.to_json()
 
     except Exception as e:
         return f"Error: {e}", 500
+
+@app.route("/api/imdb_trends")
+def imdb_trends():
+    with open("data/films_all_known.json", "r", encoding="utf-8") as f:
+        films = json.load(f)
+
+    # Подготовка данных
+    data = []
+    for film in films:
+        if film.get("imdb") and film.get("year"):
+            data.append({"year": film["year"], "imdb": film["imdb"]})
+
+    df = pd.DataFrame(data)
+    df["period"] = (df["year"] // 5) * 5
+
+    result = []
+    for period, group in df.groupby("period"):
+        total = len(group)
+        high = len(group[group["imdb"] > 7.0]) / total * 100
+        mid = len(group[(group["imdb"] >= 6) & (group["imdb"] <= 7.0)]) / total * 100
+        low = len(group[group["imdb"] < 6]) / total * 100
+        avg = group["imdb"].mean()
+        result.append({
+            "period": period,
+            "high_pct": round(high, 2),
+            "mid_pct": round(mid, 2),
+            "low_pct": round(low, 2),
+            "avg_rating": round(avg, 2)
+        })
+
+    return jsonify(result)
 
 
 
