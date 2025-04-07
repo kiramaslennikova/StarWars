@@ -792,4 +792,10 @@ function initCharts() {
     });
 }
 
+fetch("/api/stacked_avg_ratings")
+    .then(response => response.json())
+    .then(data => {
+        Plotly.newPlot("stackedRatingChart", data.data, data.layout, {responsive: true});
+    });
+
 
