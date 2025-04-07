@@ -8,6 +8,7 @@
     <link rel="icon" href="assets/favicon.png" type="image/png">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <script src="script.js" defer></script>
 </head>
 <body>
@@ -158,7 +159,19 @@
         <!-- Визуализация данных -->    
         <!-- Анимированный график IMDb и Metascore -->
         
-        <div id="animated-bar-chart" style="width: 100%; height: 600px;"></div>
+        <section id="visualization-animated-ratings" class="section visualization-section">
+            <div class="row">
+                <h2 class="viz-question">HOW DO RATINGS VARY BY GENRE?</h2>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <div class="viz-container">
+                        <div id="animatedRatingChart"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
          <section id="visualization-1" class="section visualization-section">
             <div class="row">
                 <h2 class="viz-question">DO GENRES AFFECT BOX OFFICE?</h2>
