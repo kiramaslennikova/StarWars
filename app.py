@@ -288,6 +288,62 @@ def stacked_avg_ratings():
         "layout": fig.to_dict()["layout"]
     }
 
+@app.route("/api/radar_chart")
+def radar_chart():
+    import json
+    import pandas as pd
+    import plotly.graph_objects as go
+
+    with open("data_wrangling/data/films_all_known.json", "r", encoding="utf-8") as f:
+        films = json.load(f)
+
+    data = []
+    for film in films:
+        if film["genres"] and film["box_office"] and film["budget"]:
+            for genre in film["genres"]:
+                data.append({
+                    "Genre": genre,
+                    "Box Office": film["box_office"],
+                    "Budget": film["budget"]
+                })
+
+    df = pd.DataFrame(data)
+    df_grouped = df.groupby("Genre").agg({"Box Office": "mean", "Budget": "mean"}).reset_index()
+    df_grouped.columns = ["Genre", "Avg Box Office", "Avg Budget"]
+    df_grouped = df_grouped.sort_values(by="Avg Box Office", ascending=False).head(10)
+
+    fig = go.Figure()
+
+    fig.add_trace(go.Scatterpolar(
+        r=df_grouped["Avg Box Office"],
+        theta=df_grouped["Genre"],
+        fill='toself',
+        name='Avg Box Office'
+    ))
+
+    fig.add_trace(go.Scatterpolar(
+        r=df_grouped["Avg Budget"],
+        theta=df_grouped["Genre"],
+        fill='toself',
+        name='Avg Budget'
+    ))
+
+    fig.update_layout(
+        polar=dict(
+            bgcolor="black",
+            radialaxis=dict(visible=True, gridcolor="gray", linecolor="white", tickfont=dict(color="white")),
+            angularaxis=dict(gridcolor="gray", linecolor="white", tickfont=dict(color="white"))
+        ),
+        paper_bgcolor="black",
+        plot_bgcolor="black",
+        font=dict(color="white"),
+        showlegend=True,
+        title="Budget vs Box Office by Genre (Radar Chart)",
+        template="plotly_dark"
+    )
+
+    return fig.to_json()
+
 
 
 if __name__ == '__main__':
