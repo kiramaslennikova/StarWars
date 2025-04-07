@@ -576,19 +576,19 @@ function initCharts() {
                     {
                         label: 'Box Office < Budget',
                         data: [],
-                        backgroundColor: '#FF0000', // Red
+                        backgroundColor: '#ff0073', // Red
                         pointRadius: 5
                     },
                     {
                         label: 'Budget ≤ Box Office < 2x Budget',
                         data: [],
-                        backgroundColor: '#FFA500', // Orange
+                        backgroundColor: '#7401ff', // Orange
                         pointRadius: 5
                     },
                     {
                         label: 'Box Office ≥ 2x Budget',
                         data: [],
-                        backgroundColor: '#008000', // Green
+                        backgroundColor: '#00ffaa', // Green
                         pointRadius: 5
                     }
                 ]
@@ -652,19 +652,19 @@ function initCharts() {
                     {
                         label: 'Box Office < Budget',
                         data: [],
-                        backgroundColor: '#FF0000', // Red
+                        backgroundColor: '#ff0073', // Red
                         pointRadius: 5
                     },
                     {
                         label: 'Budget ≤ Box Office < 2x Budget',
                         data: [],
-                        backgroundColor: '#FFA500', // Orange
+                        backgroundColor: '#7401ff', // Orange
                         pointRadius: 5
                     },
                     {
                         label: 'Box Office ≥ 2x Budget',
                         data: [],
-                        backgroundColor: '#008000', // Green
+                        backgroundColor: '#00ffaa', // Green
                         pointRadius: 5
                     }
                 ]
@@ -819,7 +819,7 @@ async function renderImdbTrendChart() {
             y: high,
             mode: 'lines+markers',
             name: '> 7.0',
-            line: { color: 'green', width: 2 }
+            line: { color: '#00ffaa', width: 2 }
         };
 
         const traceMid = {
@@ -827,7 +827,7 @@ async function renderImdbTrendChart() {
             y: mid,
             mode: 'lines+markers',
             name: '6.0 – 7.0',
-            line: { color: 'orange', width: 2 }
+            line: { color: '#7401ff', width: 2 }
         };
 
         const traceLow = {
@@ -835,7 +835,7 @@ async function renderImdbTrendChart() {
             y: low,
             mode: 'lines+markers',
             name: '< 6.0',
-            line: { color: 'red', width: 2 }
+            line: { color: '#ff0073', width: 2 }
         };
 
         const layout = {
