@@ -792,8 +792,4 @@ function initCharts() {
     });
 }
 
-fetch("/api/ratings_histogram")
-    .then(response => response.json())
-    .then(data => {
-        Plotly.newPlot("animatedRatingChart", data.data, data.layout, {responsive: true});
-    });
+
