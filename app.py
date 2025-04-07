@@ -229,6 +229,63 @@ def animated_ratings():
 
     return fig.to_html(full_html=False)
 
+@app.route("/api/stacked_avg_ratings")
+def stacked_avg_ratings():
+    import json
+    import pandas as pd
+    import plotly.graph_objects as go
+    from collections import Counter
+    import plotly.io as pio
+
+    with open("data/films_metascore_unknown.json", "r", encoding="utf-8") as f:
+        films = json.load(f)
+
+    genre_counter = Counter()
+    for film in films:
+        if "genres" in film:
+            genre_counter.update(film["genres"])
+
+    top_20_genres = {genre for genre, _ in genre_counter.most_common(20)}
+
+    genre_ratings = {genre: {"imdb": [], "metascore": []} for genre in top_20_genres}
+
+    for film in films:
+        if "genres" in film and film["imdb"] and film["metascore"]:
+            for genre in film["genres"]:
+                if genre in top_20_genres:
+                    genre_ratings[genre]["imdb"].append(film["imdb"])
+                    genre_ratings[genre]["metascore"].append(film["metascore"])
+
+    avg_data = {
+        "genre": [],
+        "imdb": [],
+        "metascore": []
+    }
+
+    for genre, ratings in genre_ratings.items():
+        avg_data["genre"].append(genre)
+        avg_data["imdb"].append(sum(ratings["imdb"]) / len(ratings["imdb"]))
+        avg_data["metascore"].append((sum(ratings["metascore"]) / len(ratings["metascore"])) / 10)
+
+    df_avg = pd.DataFrame(avg_data)
+    df_avg = df_avg.sort_values(by=["imdb", "metascore"], ascending=False)
+
+    fig = go.Figure(data=[
+        go.Bar(name="IMDb", x=df_avg["genre"], y=df_avg["imdb"], marker_color="lightblue"),
+        go.Bar(name="Metascore (приведённый)", x=df_avg["genre"], y=df_avg["metascore"], marker_color="orange")
+    ])
+
+    fig.update_layout(
+        barmode="stack",
+        title="Сложенная диаграмма среднего IMDb и Metascore по жанрам (ТОП-20)",
+        xaxis_title="Жанр",
+        yaxis_title="Средний рейтинг",
+        template="plotly_dark",
+        font=dict(size=14)
+    )
+
+    graph_json = pio.to_json(fig)
+    return graph_json
 
 
 if __name__ == '__main__':
