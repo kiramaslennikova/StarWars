@@ -372,7 +372,7 @@ def radar_chart():
 
 @app.route("/api/imdb_trends")
 def imdb_trends():
-    with open("data/films_all_known.json", "r", encoding="utf-8") as f:
+    with open("data_wrangling/data/films_all_known.json", "r", encoding="utf-8") as f:
         films = json.load(f)
 
     # Подготовка данных
