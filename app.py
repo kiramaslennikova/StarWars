@@ -212,10 +212,10 @@ def animated_ratings():
         x="score",
         color="rating_type",
         barmode="group",
-        animation_frame="Genre",
+        animation_frame="genre",
         title=" ",
-        labels={"score": "Рейтинг (в шкале до 10)", "count": "Количество фильмов"},
-        color_discrete_map={"IMDb": "lightblue", "Metascore": "orange"},
+        labels={"score": "Rating ", "count": "Number of films"},
+        color_discrete_map={"IMDb": "#ff0073", "Metascore": "#7401ff"},
         template="plotly_dark"
     )
 
@@ -268,8 +268,8 @@ def stacked_avg_ratings():
             metascore_list.append(round((sum(metascore_scores) / len(metascore_scores)) / 10, 2))
 
     fig = go.Figure(data=[
-        go.Bar(name="IMDb", x=genre_list, y=imdb_list, marker_color="lightblue"),
-        go.Bar(name="Metascore(scaled)", x=genre_list, y=metascore_list, marker_color="orange")
+        go.Bar(name="IMDb", x=genre_list, y=imdb_list, marker_color="#ff0073"),
+        go.Bar(name="Metascore(scaled)", x=genre_list, y=metascore_list, marker_color="#7401ff")
     ])
 
     fig.update_layout(
@@ -359,7 +359,7 @@ def radar_chart():
             ),
             font=dict(color="white"),  # Цвет текста на графике
             showlegend=True,
-            title="Budget vs Box Office by Genre (Radar Chart)"
+            title=" "
         )
 
 
