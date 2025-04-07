@@ -300,12 +300,12 @@ def radar_chart():
 
         data = []
         for film in films:
-            if film["genres"] and film["box_office"] and film["budget"]:
+            if film["genres"] and film["box_office"] and film["production_budget"]:
                 for genre in film["genres"]:
                     data.append({
                         "Genre": genre,
                         "Box Office": film["box_office"],
-                        "Budget": film["budget"]
+                        "Budget": film["production_budget"]
                     })
 
         df = pd.DataFrame(data)
