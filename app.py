@@ -94,33 +94,20 @@ def get_genre_data():
     })
 
 @app.route('/api/decade_hits', methods=['GET'])
-def get_decade_hits_data():
-    # Define a "hit" based on multiple criteria
-    high_rating_threshold_imdb = 7.5    # IMDb ≥ 7.5
-    high_rating_threshold_metascore = 75  # Metascore ≥ 75
+def get_decade_avg_imdb():
+    # Группировка по десятилетиям и расчёт среднего IMDb
+    decade_avg_imdb = data.groupby('decade')['imdb'].mean().reset_index()
 
-    # Create a 'is_hit' column based on the criteria
-    data['is_hit'] = (
-        (data['profit_category'] == '3. Box Office ≥ 2x Budget') # Highly profitable
-        # &  
-        # (data['imdb'] >= high_rating_threshold_imdb) &  # High IMDb rating
-        # (data['metascore'] >= high_rating_threshold_metascore)  # High Metascore
-    )
-
-    # Count hits per decade
-    decade_hits = data[data['is_hit']].groupby('decade').size().reset_index(name='count')
-
-    # Ensure all decades are present
+    # Обеспечим наличие всех десятилетий
     decades = ['1990s', '2000s', '2010s', '2020s']
-    decade_counts = {decade: 0 for decade in decades}
-    for _, row in decade_hits.iterrows():
-        if row['decade'] in decade_counts:
-            decade_counts[row['decade']] = row['count']
+    decade_avg = {decade: None for decade in decades}
+    for _, row in decade_avg_imdb.iterrows():
+        if row['decade'] in decade_avg:
+            decade_avg[row['decade']] = round(row['imdb'], 2)
 
-    print(decade_counts)
     return jsonify({
         'labels': decades,
-        'data': [decade_counts[decade] for decade in decades]
+        'data': [decade_avg[decade] for decade in decades]
     })
 
 @app.route('/api/actors', methods=['GET'])
