@@ -3,6 +3,54 @@ import pandas as pd
 import json
 import numpy as np
 from flask_cors import CORS
+from collections import Counter
+
+# Загрузка данных
+with open("data_wrangling/data/films_all_known.json", "r", encoding="utf-8") as f:
+    films = json.load(f)
+
+# Подсчет жанров
+genre_counter = Counter()
+for film in films:
+    if "genres" in film:
+        genre_counter.update(film["genres"])
+
+top_10_genres = {genre for genre, _ in genre_counter.most_common(10)}
+
+# Подготовка данных
+data_by_genre = {}
+
+for genre in top_10_genres:
+    genre_data = []
+    counter = {"IMDb": Counter(), "Metascore": Counter()}
+
+    for film in films:
+        if "genres" in film and genre in film["genres"] and film["imdb"] and film["metascore"]:
+            imdb_rounded = round(film["imdb"] * 2) / 2
+            metascore_rounded = round(film["metascore"] / 5) * 5 / 10  # от 0 до 10
+
+            counter["IMDb"][imdb_rounded] += 1
+            counter["Metascore"][metascore_rounded] += 1
+
+    for score, count in counter["IMDb"].items():
+        genre_data.append({
+            "rating_type": "IMDb",
+            "score": score,
+            "count": count
+        })
+
+    for score, count in counter["Metascore"].items():
+        genre_data.append({
+            "rating_type": "Metascore",
+            "score": score,
+            "count": count
+        })
+
+    data_by_genre[genre] = genre_data
+
+with open("data_wrangling/data/films_all_known.json", "w", encoding="utf-8") as f:
+    json.dump(data_by_genre, f, indent=2)
+
 
 app = Flask(__name__, static_folder='static', static_url_path='')
 CORS(app)  # Enable CORS to allow frontend requests
@@ -175,63 +223,7 @@ def get_imdb_metascore_data():
             'data': [{'x': row['imdb'], 'y': row['metascore']} for _, row in category_data.iterrows()]
         })
     return jsonify(datasets)
-@app.route("/animated_ratings")
-def animated_ratings():
-    import plotly.express as px
-    import pandas as pd
-    import json
-    import numpy as np
-    from collections import Counter
 
-    with open("data_wrangling/data/films_all_known.json", "r", encoding="utf-8") as f:
-        films = json.load(f)
-
-    genre_counter = Counter()
-    for film in films:
-        if "genres" in film:
-            genre_counter.update(film["genres"])
-
-    top_10_genres = {genre for genre, _ in genre_counter.most_common(10)}
-
-    data = []
-    for film in films:
-        if "genres" in film and film["imdb"] and film["metascore"]:
-            imdb_rounded = round(film["imdb"] * 2) / 2
-            metascore_rounded = round(film["metascore"] / 5) * 5
-            for genre in film["genres"]:
-                if genre in top_10_genres:
-                    data.append({"genre": genre, "rating_type": "IMDb", "score": imdb_rounded})
-                    data.append({"genre": genre, "rating_type": "Metascore", "score": metascore_rounded / 10})
-
-    df = pd.DataFrame(data)
-
-    # Очистка данных
-    df = df.replace([np.inf, -np.inf], np.nan).dropna()
-    df["score"] = pd.to_numeric(df["score"], errors="coerce")
-    df["genre"] = df["genre"].astype(str)
-
-    fig = px.histogram(
-        df,
-        x="score",
-        color="rating_type",
-        barmode="group",
-        animation_frame="genre",
-        title="Распределение IMDb и Metascore по жанрам",
-        labels={"score": "Рейтинг (в шкале до 10)", "count": "Количество фильмов"},
-        color_discrete_map={"IMDb": "lightblue", "Metascore": "orange"},
-        template="plotly_dark"
-    )
-
-    fig.update_layout(
-        xaxis_title="Рейтинг",
-        yaxis_title="Количество фильмов",
-        title_font_size=20,
-        font=dict(size=14),
-        bargap=0.1,
-        yaxis_range=[0, df.groupby(["genre", "rating_type", "score"]).size().max() * 1.1]
-    )
-
-    return fig.to_html(full_html=False)
 
 
 if __name__ == '__main__':
