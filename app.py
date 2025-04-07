@@ -3,53 +3,6 @@ import pandas as pd
 import json
 import numpy as np
 from flask_cors import CORS
-from collections import Counter
-
-# Загрузка данных
-with open("data_wrangling/data/films_all_known.json", "r", encoding="utf-8") as f:
-    films = json.load(f)
-
-# Подсчет жанров
-genre_counter = Counter()
-for film in films:
-    if "genres" in film:
-        genre_counter.update(film["genres"])
-
-top_10_genres = {genre for genre, _ in genre_counter.most_common(10)}
-
-# Подготовка данных
-data_by_genre = {}
-
-for genre in top_10_genres:
-    genre_data = []
-    counter = {"IMDb": Counter(), "Metascore": Counter()}
-
-    for film in films:
-        if "genres" in film and genre in film["genres"] and film["imdb"] and film["metascore"]:
-            imdb_rounded = round(film["imdb"] * 2) / 2
-            metascore_rounded = round(film["metascore"] / 5) * 5 / 10  # от 0 до 10
-
-            counter["IMDb"][imdb_rounded] += 1
-            counter["Metascore"][metascore_rounded] += 1
-
-    for score, count in counter["IMDb"].items():
-        genre_data.append({
-            "rating_type": "IMDb",
-            "score": score,
-            "count": count
-        })
-
-    for score, count in counter["Metascore"].items():
-        genre_data.append({
-            "rating_type": "Metascore",
-            "score": score,
-            "count": count
-        })
-
-    data_by_genre[genre] = genre_data
-
-with open("data_wrangling/data/films_all_known.json", "w", encoding="utf-8") as f:
-    json.dump(data_by_genre, f, indent=2)
 
 
 app = Flask(__name__, static_folder='static', static_url_path='')
