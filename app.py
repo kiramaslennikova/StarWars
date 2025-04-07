@@ -3,6 +3,7 @@ import pandas as pd
 import json
 import numpy as np
 from flask_cors import CORS
+import plotly.io as pio
 
 
 app = Flask(__name__, static_folder='static', static_url_path='')
@@ -177,12 +178,11 @@ def get_imdb_metascore_data():
         })
     return jsonify(datasets)
 
-
-@app.route("/api/animated_ratings")
-def animated_ratings():
+@app.route("/api/ratings_histogram")
+def ratings_histogram():
+    import json
     import pandas as pd
     import plotly.express as px
-    import json
     from collections import Counter
 
     with open("data_wrangling/data/films_all_known.json", "r", encoding="utf-8") as f:
@@ -207,7 +207,27 @@ def animated_ratings():
 
     df = pd.DataFrame(data)
 
-    return df.to_json(orient="records")
+    fig = px.histogram(df,
+                       x="score",
+                       color="rating_type",
+                       barmode="group",
+                       animation_frame="genre",
+                       title="Распределение IMDb и Metascore по жанрам",
+                       labels={"score": "Рейтинг (в шкале до 10)", "count": "Количество фильмов"},
+                       color_discrete_map={"IMDb": "lightblue", "Metascore": "orange"},
+                       template="plotly_dark")
+
+    fig.update_layout(
+        xaxis_title="Рейтинг",
+        yaxis_title="Количество фильмов",
+        title_font_size=20,
+        font=dict(size=14),
+        bargap=0.1
+    )
+
+    graph_json = pio.to_json(fig)
+    return graph_json
+
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
