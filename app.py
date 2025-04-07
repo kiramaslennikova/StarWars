@@ -235,7 +235,6 @@ def stacked_avg_ratings():
     import pandas as pd
     import plotly.graph_objects as go
     from collections import Counter
-    import plotly.io as pio
 
     with open("data_wrangling/data/films_metascore_unknown.json", "r", encoding="utf-8") as f:
         films = json.load(f)
@@ -245,7 +244,7 @@ def stacked_avg_ratings():
         if "genres" in film:
             genre_counter.update(film["genres"])
 
-    top_20_genres = {genre for genre, _ in genre_counter.most_common(20)}
+    top_20_genres = [genre for genre, _ in genre_counter.most_common(20)]  # Сохраняем порядок
 
     genre_ratings = {genre: {"imdb": [], "metascore": []} for genre in top_20_genres}
 
@@ -256,36 +255,39 @@ def stacked_avg_ratings():
                     genre_ratings[genre]["imdb"].append(film["imdb"])
                     genre_ratings[genre]["metascore"].append(film["metascore"])
 
-    avg_data = {
-        "genre": [],
-        "imdb": [],
-        "metascore": []
-    }
+    # Вычисляем средние значения
+    genre_list = []
+    imdb_list = []
+    metascore_list = []
 
-    for genre, ratings in genre_ratings.items():
-        avg_data["genre"].append(genre)
-        avg_data["imdb"].append(sum(ratings["imdb"]) / len(ratings["imdb"]))
-        avg_data["metascore"].append((sum(ratings["metascore"]) / len(ratings["metascore"])) / 10)
-
-    df_avg = pd.DataFrame(avg_data)
-    df_avg = df_avg.sort_values(by=["imdb", "metascore"], ascending=False)
+    for genre in top_20_genres:
+        imdb_scores = genre_ratings[genre]["imdb"]
+        metascore_scores = genre_ratings[genre]["metascore"]
+        if imdb_scores and metascore_scores:
+            genre_list.append(genre)
+            imdb_list.append(round(sum(imdb_scores) / len(imdb_scores), 2))
+            metascore_list.append(round((sum(metascore_scores) / len(metascore_scores)) / 10, 2))
 
     fig = go.Figure(data=[
-        go.Bar(name="IMDb", x=df_avg["genre"], y=df_avg["imdb"], marker_color="lightblue"),
-        go.Bar(name="Metascore (приведённый)", x=df_avg["genre"], y=df_avg["metascore"], marker_color="orange")
+        go.Bar(name="IMDb", x=genre_list, y=imdb_list, marker_color="lightblue"),
+        go.Bar(name="Metascore (приведённый)", x=genre_list, y=metascore_list, marker_color="orange")
     ])
 
     fig.update_layout(
         barmode="stack",
         title="Сложенная диаграмма среднего IMDb и Metascore по жанрам (ТОП-20)",
         xaxis_title="Жанр",
-        yaxis_title="Средний рейтинг",
+        yaxis_title="Средний рейтинг (до 10)",
         template="plotly_dark",
         font=dict(size=14)
     )
 
-    graph_json = pio.to_json(fig)
-    return graph_json
+    # Возвращаем как dict, не как JSON string
+    return {
+        "data": fig.to_dict()["data"],
+        "layout": fig.to_dict()["layout"]
+    }
+
 
 
 if __name__ == '__main__':
