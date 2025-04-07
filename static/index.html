@@ -158,24 +158,22 @@
         <!-- Визуализация данных -->    
         <!-- Анимированный график IMDb и Metascore -->
         <section id="visualization-0" class="section visualization-section">
-            <div class="row">
-                <div class="col-12">
-                    <h2 class="viz-question">HOW DO RATINGS DISTRIBUTE ACROSS GENRES?</h2>
-                    <div class="viz-container">
-                        <iframe src="/animated_ratings" width="100%" height="600" frameborder="0" style="border-radius: 12px;"></iframe>
-                    </div>
-                </div>
+    <div class="row">
+        <div class="col-12">
+            <h2 class="viz-question">DISTRIBUTION OF RATINGS BY GENRE</h2>
+            <label for="genreSelector">Select Genre:</label>
+            <select id="genreSelector"></select>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <div class="viz-container">
+                <canvas id="ratingDistributionChart"></canvas>
             </div>
-            <div class="row">
-                <div class="col-5">
-                    <div class="insight-box">
-                        <p class="insight-text">
-                            Animation, Action, and Drama show distinct rating patterns across IMDb and Metascore scales. IMDb ratings are more generous, but critic scores follow different genre trends.
-                        </p>
-                    </div>
-                </div>
-            </div>
+        </div>
+    </div>
         </section>
+
          <section id="visualization-1" class="section visualization-section">
             <div class="row">
                 <h2 class="viz-question">DO GENRES AFFECT BOX OFFICE?</h2>
