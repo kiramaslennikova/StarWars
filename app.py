@@ -178,14 +178,14 @@ def get_imdb_metascore_data():
         })
     return jsonify(datasets)
 
-@app.route("/api/ratings_histogram")
-def ratings_histogram():
-    import json
-    import pandas as pd
+@app.route("/animated_ratings")
+def animated_ratings():
     import plotly.express as px
+    import pandas as pd
+    import json
     from collections import Counter
 
-    with open("data_wrangling/data/films_all_known.json", "r", encoding="utf-8") as f:
+    with open("data/films_metascore_unknown.json", "r", encoding="utf-8") as f:
         films = json.load(f)
 
     genre_counter = Counter()
@@ -207,15 +207,17 @@ def ratings_histogram():
 
     df = pd.DataFrame(data)
 
-    fig = px.histogram(df,
-                       x="score",
-                       color="rating_type",
-                       barmode="group",
-                       animation_frame="genre",
-                       title="Распределение IMDb и Metascore по жанрам",
-                       labels={"score": "Рейтинг (в шкале до 10)", "count": "Количество фильмов"},
-                       color_discrete_map={"IMDb": "lightblue", "Metascore": "orange"},
-                       template="plotly_dark")
+    fig = px.histogram(
+        df,
+        x="score",
+        color="rating_type",
+        barmode="group",
+        animation_frame="genre",
+        title="Распределение IMDb и Metascore по жанрам",
+        labels={"score": "Рейтинг (в шкале до 10)", "count": "Количество фильмов"},
+        color_discrete_map={"IMDb": "lightblue", "Metascore": "orange"},
+        template="plotly_dark"
+    )
 
     fig.update_layout(
         xaxis_title="Рейтинг",
@@ -225,8 +227,8 @@ def ratings_histogram():
         bargap=0.1
     )
 
-    graph_json = pio.to_json(fig)
-    return graph_json
+    return fig.to_html(full_html=False)
+
 
 
 if __name__ == '__main__':
