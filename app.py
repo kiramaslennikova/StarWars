@@ -212,16 +212,16 @@ def animated_ratings():
         x="score",
         color="rating_type",
         barmode="group",
-        animation_frame="genre",
-        title="Распределение IMDb и Metascore по жанрам",
+        animation_frame="Genre",
+        title=" ",
         labels={"score": "Рейтинг (в шкале до 10)", "count": "Количество фильмов"},
         color_discrete_map={"IMDb": "lightblue", "Metascore": "orange"},
         template="plotly_dark"
     )
 
     fig.update_layout(
-        xaxis_title="Рейтинг",
-        yaxis_title="Количество фильмов",
+        xaxis_title="Rating",
+        yaxis_title="Number of films",
         title_font_size=20,
         font=dict(size=14),
         bargap=0.1
@@ -255,7 +255,6 @@ def stacked_avg_ratings():
                     genre_ratings[genre]["imdb"].append(film["imdb"])
                     genre_ratings[genre]["metascore"].append(film["metascore"])
 
-    # Вычисляем средние значения
     genre_list = []
     imdb_list = []
     metascore_list = []
@@ -270,19 +269,18 @@ def stacked_avg_ratings():
 
     fig = go.Figure(data=[
         go.Bar(name="IMDb", x=genre_list, y=imdb_list, marker_color="lightblue"),
-        go.Bar(name="Metascore (приведённый)", x=genre_list, y=metascore_list, marker_color="orange")
+        go.Bar(name="Metascore(scaled)", x=genre_list, y=metascore_list, marker_color="orange")
     ])
 
     fig.update_layout(
         barmode="stack",
-        title="Сложенная диаграмма среднего IMDb и Metascore по жанрам (ТОП-20)",
-        xaxis_title="Жанр",
-        yaxis_title="Средний рейтинг (до 10)",
+        title=" ",
+        xaxis_title="Genre",
+        yaxis_title="Average rating",
         template="plotly_dark",
         font=dict(size=14)
     )
 
-    # Возвращаем как dict, не как JSON string
     return {
         "data": fig.to_dict()["data"],
         "layout": fig.to_dict()["layout"]
@@ -331,7 +329,7 @@ def radar_chart():
         ]
 
         df_combined = pd.DataFrame(combined_data)
-        df_combined = df_combined.sort_values("Avg Budget", ascending=False).head(10)
+        df_combined = df_combined.sort_values("Avg Budget", ascending=False)
 
         # Построение радара
         fig = go.Figure()
